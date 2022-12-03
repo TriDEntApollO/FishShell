@@ -302,6 +302,7 @@ def logout(client):
 
 
 def send_command(client, Id):
+    global ses
     print("\nPress Ctrl-c or enter 'exit'/'quit' to exit session\n")
     while not g.till:
         try:
@@ -383,6 +384,7 @@ def send_command(client, Id):
             else:
                 help_menu(command=command)
                 print()
+            ses = f"Session [{Id}] >>> "
         except KeyboardInterrupt:
             break
         except EOFError:
@@ -398,7 +400,8 @@ def send_command(client, Id):
             print()
             print(error)
             send_command(client=client, Id=Id)
+    ses = None
     return
 
 
-rev_shell = None
+rev_shell, ses = None, None

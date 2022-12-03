@@ -92,8 +92,17 @@ def accept_connections():
                     print("FishShell >>> ", end='', flush=True)
         except Exception as error:
             if not g.till and g.accept:
-                print("Error While accepting Connections")
-
+                with lock:
+                    print('\n')
+                    print(error)
+                    print()
+                    print("Error While accepting Connections\n")
+                    if ses is not None:
+                        print(session, end='', flush=True)
+                    elif rev_shell is not None:
+                        print(rev_shell, end='', flush=True)
+                    else:
+                        print("FishShell >>> ", end='', flush=True)
     return
 
 

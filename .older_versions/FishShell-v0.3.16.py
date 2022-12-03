@@ -57,7 +57,7 @@ def listen():
 
 def notify(title='', message=''):
     path = os.getcwd()
-    path = os.path.join(path, r'.sources\FishShell.png')
+    path = os.path.join(path, r'sources\FishShell.png')
     popup = Notification(app_id='FishShell',
                          title=title,
                          msg=message,

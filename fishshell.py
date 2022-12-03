@@ -7,12 +7,13 @@ import traceback
 import subprocess
 import socket as sock
 from datetime import datetime
-from sources.functions.help import help_menu
 import sources.functions.var.globals as g
 from sources.functions.banner import banner
+from sources.functions.help import help_menu
 from sources.functions.generate import generate
-from sources.functions.session import rev_shell, ses, command, cm
 from sources.functions.session import send_command
+from sources.functions.session import rev_shell, ses
+from sources.functions.ClearScreen import clear_screen
 
 
 try:
@@ -286,6 +287,8 @@ def shell():
             if 'help' in cmnd or '-h' in cmnd:
                 print()
                 help_menu(command=cmnd)
+            elif cmnd == 'clear':
+                clear_screen()
             elif cmnd[:9] == 'set lhost':
                 if g.server is not None:
                     print()

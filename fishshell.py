@@ -41,14 +41,22 @@ def call_shell():
 
 
 def listen():
-    if g.server is None:
-        start_server()
     accept_thread = threading.Thread(target=accept_connections)
     accept_thread.daemon = True
     accept_thread.start()
     ping_thread = threading.Thread(target=start_ping())
     ping_thread.daemon = True
     ping_thread.start()
+
+
+def print_input():
+    with lock:
+        if ses is not None:
+            print(session, end='', flush=True)
+        elif rev_shell is not None:
+            print(rev_shell, end='', flush=True)
+        else:
+            print("FishShell >>> ", end='', flush=True)
 
 
 def start_server():
@@ -61,13 +69,15 @@ def start_server():
         ping.bind((g.host, pn_port))
         g.server.listen()
         ping.listen()
-    except Exception as error:
-        print()
-        print(traceback.format_exc())
-        print()
-        print(error)
-        print()
-        shell()
+        msg = f"[{g.g}Info{g.e}] Listening on '{g.host}' at port '{g.port}'"
+        return True, msg
+    except OSError:
+        msg = f"[{g.r}Error{g.e}] Specified port already in use\n[{g.bl}Fix{g.e}] Use 'set lport <PORT> to set a different port"
+    except Exception as msg:
+        pass
+    g.server = None
+    g.accept = False
+    return False, msg
 
 
 def accept_connections():
@@ -82,14 +92,9 @@ def accept_connections():
             g.active_conns[Id] = [client, addr, platform, when, None]
             with lock:
                 print('\n')
-                print("[Info] New Connection!")
-                print(f"[Info] '{addr[0]}:{addr[1]}' has connected to the server as '{Id}'\n")
-                if ses is not None:
-                    print(session, end='', flush=True)
-                elif rev_shell is not None:
-                    print(rev_shell, end='', flush=True)
-                else:
-                    print("FishShell >>> ", end='', flush=True)
+                print(f"[{g.g}Info{g.e}] New Connection!")
+                print(f"[{g.g}Info{g.e}] '{addr[0]}:{addr[1]}' has connected to the server as '{Id}'\n")
+                print_input()
         except Exception as error:
             if not g.till and g.accept:
                 with lock:
@@ -97,12 +102,7 @@ def accept_connections():
                     print(error)
                     print()
                     print("Error While accepting Connections\n")
-                    if ses is not None:
-                        print(session, end='', flush=True)
-                    elif rev_shell is not None:
-                        print(rev_shell, end='', flush=True)
-                    else:
-                        print("FishShell >>> ", end='', flush=True)
+                print_input()
     return
 
 
@@ -319,13 +319,22 @@ def shell():
             elif cmnd[:8] == 'generate':
                 generate(data=cmnd)
             elif cmnd == 'listen':
+                again = True
                 if g.host == '192.168.29.17' and g.port == 3784:
                     print()
                     print("'lhost' and 'lport' not set, continuing with default parameters")
-                g.accept = True
-                listen_thread.start()
-                print()
-                print(f"[Info] Listening on '{g.host}' at port '{g.port}")
+                if g.server is None:
+                    again = False
+                    state, msg = start_server()
+                    if state is True:
+                        g.accept = True
+                        listen_thread.start()
+                    print()
+                    print(msg)
+                if g.server is not None and again is True:
+                    g.accept = True
+                    listen_thread.start()
+                again = True
             elif cmnd == 'list -active':
                 list_active_connections()
             elif cmnd == 'list -all':

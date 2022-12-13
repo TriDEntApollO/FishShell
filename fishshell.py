@@ -12,7 +12,6 @@ from sources.functions.banner import banner
 from sources.functions.help import help_menu
 from sources.functions.generate import generate
 from sources.functions.session import send_command
-from sources.functions.session import rev_shell, ses
 from sources.functions.ClearScreen import clear_screen
 
 
@@ -31,7 +30,7 @@ except Exception as err:
 def create_threads():
     global shell_thread, listen_thread
     shell_thread = threading.Thread(target=call_shell)
-    listen_thread = threading.Thread(target=listen)
+    listen_thread = threading.Thread(target=lambda: listen())
     listen_thread.daemon = True
 
 
@@ -40,23 +39,16 @@ def call_shell():
     shell()
 
 
-def listen():
+def listen(again: bool = False):
     accept_thread = threading.Thread(target=accept_connections)
     accept_thread.daemon = True
-    accept_thread.start()
-    ping_thread = threading.Thread(target=start_ping())
+    if again:
+        ping_thread = threading.Thread(target=lambda: start_ping(again))
+    else:
+        ping_thread = threading.Thread(target=lambda: start_ping())
     ping_thread.daemon = True
+    accept_thread.start()
     ping_thread.start()
-
-
-def print_input():
-    with lock:
-        if ses is not None:
-            print(session, end='', flush=True)
-        elif rev_shell is not None:
-            print(rev_shell, end='', flush=True)
-        else:
-            print("FishShell >>> ", end='', flush=True)
 
 
 def start_server():
@@ -81,6 +73,7 @@ def start_server():
 
 
 def accept_connections():
+    global output_buffer, run
     while not g.till and g.accept:
         try:
             client, addr = g.server.accept()
@@ -90,33 +83,27 @@ def accept_connections():
             when = datetime.now()
             g.all_conns[Id] = [client, addr, platform, when, None, 'Active']
             g.active_conns[Id] = [client, addr, platform, when, None]
-            with lock:
-                print('\n')
-                print(f"[{g.g}Info{g.e}] New Connection!")
-                print(f"[{g.g}Info{g.e}] '{addr[0]}:{addr[1]}' has connected to the server as '{Id}'\n")
-                print_input()
+            print_msg = f"\n\n[{g.g}Info{g.e}] New Connection!\n[{g.g}Info{g.e}] '{addr[0]}:{addr[1]}' has connected to the server as '{Id}'\n"
+            output_buffer.append(print_msg)
         except Exception as error:
             if not g.till and g.accept:
-                with lock:
-                    print('\n')
-                    print(error)
-                    print()
-                    print("Error While accepting Connections\n")
-                print_input()
+                print_msg = f"\n\n[{g.r}Error{g.e}]Error While accepting Connections\n[{g.r}Error Code{g.e}] {error}"
+                output_buffer.append(print_msg)
     return
 
 
-def start_ping():
+def start_ping(again: bool = False):
     accept_ping_thread = threading.Thread(target=accept_ping)
     accept_ping_thread.daemon = True
-    send_ping_thread = threading.Thread(target=send_ping)
-    send_ping_thread.daemon = True
     accept_ping_thread.start()
-    send_ping_thread.start()
+    if not again:
+        send_ping_thread = threading.Thread(target=send_ping)
+        send_ping_thread.daemon = True
+        send_ping_thread.start()
 
 
 def accept_ping():
-    global ping
+    global ping, run
     while not g.till and g.accept:
         try:
             ping_client, addr = ping.accept()
@@ -130,7 +117,7 @@ def accept_ping():
 
 
 def send_ping():
-    while not g.till and g.accept:
+    while not g.till:
         current_conns = g.active_conns.copy()
         if not current_conns:
             continue
@@ -288,7 +275,7 @@ def quit_shell():
 
 
 def shell():
-    global cmnd
+    global cmnd, output_buffer, listen_thread
     while not g.till:
         try:
             print()
@@ -319,22 +306,19 @@ def shell():
             elif cmnd[:8] == 'generate':
                 generate(data=cmnd)
             elif cmnd == 'listen':
-                again = True
+                if g.server is not None:
+                    print(f"\n[{g.r}Error{g.e}] Listen can only be started once")
+                    continue
                 if g.host == '192.168.29.17' and g.port == 3784:
                     print()
                     print("'lhost' and 'lport' not set, continuing with default parameters")
-                if g.server is None:
-                    again = False
-                    state, msg = start_server()
-                    if state is True:
-                        g.accept = True
-                        listen_thread.start()
-                    print()
-                    print(msg)
-                if g.server is not None and again is True:
+                state, msg = start_server()
+                if state:
                     g.accept = True
                     listen_thread.start()
-                again = True
+                    listen_thread = threading.Thread(target=lambda: listen(again=True))
+                print()
+                print(msg)
             elif cmnd == 'list -active':
                 list_active_connections()
             elif cmnd == 'list -all':
@@ -407,12 +391,17 @@ def shell():
             print()
             print(error)
             shell()
+        if output_buffer:
+            print('FishShell >>> ', end='')
+            print(lines for lines in output_buffer)
+            output_buffer.clear()
     return
 
 
 def main():
-    global lock
+    global lock, output_buffer
     lock = threading.Lock()
+    output_buffer = []
     g.initialize()
     g.all_conns = {}
     g.active_conns = {}

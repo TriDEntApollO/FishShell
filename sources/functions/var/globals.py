@@ -1,3 +1,6 @@
+import socket as sock
+
+
 def initialize():
     global p, c, d, bl, g, y, r, b, u, e
     p = '\033[95m'
@@ -16,4 +19,5 @@ def initialize():
     active_conns = {}
     till, accept = False, False
     server = None
-    host, port = '192.168.29.17', 3784
+    hostname = sock.gethostname()
+    host, port = sock.gethostbyname(hostname), 4348

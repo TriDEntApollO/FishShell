@@ -83,7 +83,7 @@ def accept_connections():
             when = datetime.now()
             g.all_conns[Id] = [client, addr, platform, when, None, 'Active']
             g.active_conns[Id] = [client, addr, platform, when, None]
-            print_msg = f"\n\n[{g.g}Info{g.e}] New Connection!\n[{g.g}Info{g.e}] '{addr[0]}:{addr[1]}' has connected to the server as '{Id}'\n"
+            print_msg = f"\n\n[{g.g}Info{g.e}] New Connection!\n[{g.g}Info{g.e}] '{addr[0]}:{addr[1]}' has connected to the server as '{Id}'"
             output_buffer.append(print_msg)
         except Exception as error:
             if not g.till and g.accept:
@@ -393,7 +393,7 @@ def shell():
             shell()
         if output_buffer:
             print('FishShell >>> ', end='')
-            print(lines for lines in output_buffer)
+            print([lines for lines in output_buffer][0])
             output_buffer.clear()
     return
 

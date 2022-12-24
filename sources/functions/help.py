@@ -15,29 +15,29 @@ select     Gain control to an active connections.
 close      Close all or a single active connection.
 clear      Clear the screen.
 qs         Quit the server only.
-q!         Quit the server and all the active clients''')
+q!         Quit the server and all the active clients.''')
     elif command == 'help_session':
         print('''
 Command            Description
 -------            -----------
 cwd                Get the current working directory.
-ls                 list a directory or all users.
-dwnld              Download a file from the client machine.
-upld               Upload a file to the client machine.
+ls                 list a directory or all users in the target machine.
+dwnld              Download a file from the target machine.
+upld               Upload a file to the target machine.
 chdir              Change directory.
-rmv                Delete a file from the client machine.
-rmv_dir            Delete a full/empty directory from the client machine.
-opn_url            Open a URL or link in the client machine.
-strt_proc          Start a process (file or executable) in the client machine.
+rmv                Delete a file from the target machine.
+rmv_dir            Delete a full/empty directory from the target machine.
+opn_url            Open a URL or link in the target machine.
+strt_proc          Start a process (file or executable) in the target machine.
 curr_usr           Get current user's Username.
 chk_admin          Check if the current user is admin.
 curr_usr_details   Get the current user's details.
 usr_details        Get a specified user's details.
-take_ss            Take and save a screenshot of the client machine.
-getshell           Get/gain a reverse shell of the client machine.
+take_ss            Take and save a screenshot of the target machine.
+getshell           Get/gain a reverse shell of the target machine.
 logout             Logout the current user.
-restrt             Restart the client machine.
-shut               Shutdown the client machine.
+restrt             Restart the target machine.
+shut               Shutdown the target machine.
 clear              Clear the screen.
 exit               Exit the current active session.''')
     else:

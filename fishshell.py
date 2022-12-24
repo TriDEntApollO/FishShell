@@ -89,7 +89,7 @@ def accept_connections():
             output_buffer.append(print_msg)
         except Exception as error:
             if not g.till and g.accept:
-                print_msg = f"\n\n[{g.r}Error{g.e}]Error While accepting Connections\n[{g.r}Error Code{g.e}] {error}"
+                print_msg = f"\n\n[{g.r}Error{g.e}] Error While accepting Connections\n[{g.r}Error Code{g.e}] {error}"
                 output_buffer.append(print_msg)
     return
 

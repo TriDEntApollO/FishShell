@@ -284,7 +284,7 @@ def shell():
             cmnd = input("FishShell >>> ")
             if cmnd == 'help':
                 print()
-                help_menu(command='help_shell')
+                help_menu(command='helpshell')
             elif 'help' in cmnd or '-h' in cmnd:
                 print()
                 help_menu(command=cmnd)

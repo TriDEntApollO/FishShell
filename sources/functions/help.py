@@ -1,9 +1,10 @@
 from tabulate import tabulate
 
 
-def help_menu(command=''):
-    if command == 'help_shell':
-        print('''
+def help_menu(command: str = 'help', parent: str = 'shell'):
+    if parent == 'shell':
+        if command == 'help':
+            print('''
 Command    Description
 -------    -----------
 help       Print this message.
@@ -16,8 +17,22 @@ close      Close all or a single active connection.
 clear      Clear the screen.
 qs         Quit the server only.
 q!         Quit the server and all the active clients.''')
-    elif command == 'help_session':
-        print('''
+
+        elif '' in command:
+            print('''
+Command            Description
+-------            -----------
+''')
+
+        else:
+            print()
+            print("Invalid command!")
+            print(f"'{command}' isn't recognised as an internal or external command\n")
+            print("Enter 'help' to view all the commands and their functions")
+
+    if parent == 'session':
+        if command == 'help':
+            print('''
 Command            Description
 -------            -----------
 cwd                Get the current working directory.
@@ -40,8 +55,9 @@ restrt             Restart the target machine.
 shut               Shutdown the target machine.
 clear              Clear the screen.
 exit               Exit the current active session.''')
-    else:
-        print()
-        print("Invalid command!")
-        print(f"'{command}' isn't recognised as an internal or external command\n")
-        print("Enter 'help' to view all the commands and their functions")
+
+        else:
+            print()
+            print("Invalid command!")
+            print(f"'{command}' isn't recognised as an internal or external command\n")
+            print("Enter 'help' to view all the commands and their functions")

@@ -319,11 +319,11 @@ def send_command(client, Id):
                 break
             if command == 'help':
                 print()
-                help_menu(command='help_session')
+                help_menu(command='help', parent='session')
                 print()
             elif 'help' in command or '-h' in command:
                 print()
-                help_menu(command=command)
+                help_menu(command=command, parent='session')
                 print()
             elif command == 'clear':
                 clear_screen()
@@ -391,7 +391,7 @@ def send_command(client, Id):
                 client.send(b'exit')
                 return
             else:
-                help_menu(command=command)
+                help_menu(command=command, parent='session')
                 print()
         except KeyboardInterrupt:
             break

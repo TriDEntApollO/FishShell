@@ -317,7 +317,12 @@ def send_command(client, Id):
                 print("Client closed connection")
                 print()
                 break
-            if 'help' in command or '-h' in command:
+            if command == 'help':
+                print()
+                help_menu(command='help_session')
+                print()
+            elif 'help' in command or '-h' in command:
+                print()
                 help_menu(command=command)
                 print()
             elif command == 'clear':
@@ -382,7 +387,7 @@ def send_command(client, Id):
             elif command == 'logout':
                 client.send(command.encode())
                 logout(client=client)
-            elif command in ['exit', 'quit']:
+            elif command == 'exit':
                 client.send(b'exit')
                 return
             else:

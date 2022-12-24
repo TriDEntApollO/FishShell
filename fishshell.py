@@ -16,11 +16,13 @@ from sources.functions.ClearScreen import clear_screen
 
 
 try:
+    import rsa
     from tabulate import tabulate
 except ModuleNotFoundError:
     print("Installing Dependencies...\n")
     subprocess.call(['pip', 'install', '-r', 'requirements.txt'])
     from tabulate import tabulate
+    import rsa
 except Exception as err:
     print()
     print(err)
@@ -280,27 +282,30 @@ def shell():
         try:
             print()
             cmnd = input("FishShell >>> ")
-            if 'help' in cmnd or '-h' in cmnd:
+            if cmnd == 'help':
+                print()
+                help_menu(command='help_shell')
+            elif 'help' in cmnd or '-h' in cmnd:
                 print()
                 help_menu(command=cmnd)
             elif cmnd == 'clear':
                 clear_screen()
-            elif cmnd[:9] == 'set lhost':
+            elif cmnd[:10] == 'set -lhost':
                 if g.server is not None:
                     print()
                     print("Error : Server already running")
                     print("Restart the program to change 'lhost'")
                     continue
-                g.host = cmnd[10:]
+                g.host = cmnd[11:]
                 print()
                 print(f'lhost set to --> {g.host}')
-            elif cmnd[:9] == 'set lport':
+            elif cmnd[:10] == 'set -lport':
                 if g.server is not None:
                     print()
                     print("Error : Server already running")
                     print("Restart the program to change 'lport'")
                     continue
-                g.port = int(cmnd[10:])
+                g.port = int(cmnd[11:])
                 print()
                 print(f'lport set to --> {g.port}')
             elif cmnd[:8] == 'generate':
@@ -326,13 +331,13 @@ def shell():
             elif cmnd[:6] == 'select':
                 Id = cmnd[7:]
                 select_client(Id=Id)
-            elif cmnd[:5] == 'close':
+            elif cmnd[:9] == 'close -id':
                 if g.server is None:
                     print()
                     print("No active connections to close")
                     print("Enter 'listen' to start listening for connections")
                     continue
-                Id = cmnd[6:]
+                Id = cmnd[10:]
                 close_connection(Id)
             elif cmnd == 'close -all':
                 if g.server is None:

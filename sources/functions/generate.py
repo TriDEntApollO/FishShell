@@ -1,9 +1,7 @@
-import fileinput
-import importlib
-import subprocess
 import sys
+import fileinput
+import subprocess
 from pickle import load
-from pathlib import Path
 from os import path as P
 
 
@@ -11,11 +9,20 @@ def generate(data=''):
     try:
         data = data.split('-')
         del data[0]
-        plt = (data[0].replace('os ', '')).replace(' ', '')
-        host = (data[1].replace('lhost ', '')).replace(' ', '')
-        port = int(data[2].replace('lport ', ''))
-        path = P.abspath(data[3].replace('outfile ', ''))
-        name = P.basename(path)
+        for attr in data:
+            if 'os ' in attr:
+                plt = (data[0].replace('os ', '')).replace(' ', '')
+            if 'lhost  ' in attr:
+                host = (data[1].replace('lhost ', '')).replace(' ', '')
+            if 'lport ' in attr:
+                port = int(data[2].replace('lport ', ''))
+                path = P.abspath(data[3].replace('outfile ', ''))
+            if 'outfile ' in attr:
+                name = P.basename(path)
+            else:
+                print("\nInvalid arguments!")
+                print("Enter 'generate -h' to view full usage")
+                return
     except:
         print("\nInvalid arguments!")
         print("Enter 'generate -h' to view full usage")

@@ -305,7 +305,7 @@ def logout(client):
 
 
 def send_command(client, Id):
-    print("\nPress Ctrl-c or enter 'exit'/'quit' to exit session\n")
+    print("Press Ctrl-c or enter 'exit'/'quit' to exit session\n\n")
     while not g.till:
         try:
             command = input(f"Session [{Id}] >>> ")
@@ -399,14 +399,17 @@ def send_command(client, Id):
             break
         except sock.timeout:
             print()
-            print("Session may have died...Returning to shell")
+            print(f"[{g.r}Error{g.e}] Session may have died...Returning to shell.")
+            break
+        except sock.error:
             print()
+            print(f"[{g.r}Error{g.e}] Connections was forcibly closed by the target.")
             break
         except Exception as error:
             print()
             print(traceback.format_exc())
             print()
             print(error)
+            print()
             send_command(client=client, Id=Id)
     return
-

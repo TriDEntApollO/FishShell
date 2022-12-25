@@ -24,8 +24,9 @@ def generate(data=''):
                 print("Enter 'generate -h' to view full usage")
                 return
     except:
-        print("\nInvalid arguments!")
-        print("Enter 'generate -h' to view full usage")
+        print()
+        print(f"\n[{g.r}Error{g.e}] Invalid arguments...")
+        print(f"[{g.bl}Fix{g.e}] Enter generate --help to view usage")
         return
     if not P.exists(path.replace(name, '')):
         print(f"\nOutfile directory '{path.replace(name, '')}' doesn't exist")

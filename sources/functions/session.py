@@ -318,11 +318,9 @@ def send_command(client, Id):
                 print()
                 break
             if command == 'help':
-                print()
                 help_menu(command='help', parent='session')
                 print()
-            elif 'help' in command or '-h' in command:
-                print()
+            elif '--help' in command or '-h' in command:
                 help_menu(command=command, parent='session')
                 print()
             elif command == 'clear':
@@ -387,11 +385,11 @@ def send_command(client, Id):
             elif command == 'logout':
                 client.send(command.encode())
                 logout(client=client)
-            elif command == 'exit':
+            elif command in ['exit', 'quit']:
                 client.send(b'exit')
                 return
             else:
-                help_menu(command=command, parent='session')
+                help_menu(command='invalid', parent='session')
                 print()
         except KeyboardInterrupt:
             break

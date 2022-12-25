@@ -66,7 +66,7 @@ def start_server():
         msg = f"[{g.g}Info{g.e}] Listening on '{g.host}' at port '{g.port}'"
         return True, msg
     except OSError:
-        msg = f"[{g.r}Error{g.e}] Specified port already in use\n[{g.bl}Fix{g.e}] Use 'set lport <PORT> to set a different port"
+        msg = f"[{g.r}Error{g.e}] Specified port already in use\n[{g.bl}Fix{g.e}]    Use 'set lport <PORT> to set a different port"
     except Exception as msg:
         pass
     g.server = None
@@ -241,20 +241,19 @@ def close_connection(Id):
             client.send(b'close')
             client.close()
             del g.active_conns[Id]
+            print()
             print(f"Closed connection with [{addr[0]}:{addr[1]}]")
         except sock.timeout:
             print()
             print("Session may have already died")
-            print()
         except exception as e:
             print()
             print(e)
-            print()
     elif Id in g.all_conns:
         print()
         print("Session was already closed")
-        print()
     else:
+        print()
         print("Session ID not found")
 
 
@@ -283,36 +282,34 @@ def shell():
             print()
             cmnd = input("FishShell >>> ")
             if cmnd == 'help':
-                print()
-                help_menu(command='helpshell')
+                help_menu(command='help')
             elif 'help' in cmnd or '-h' in cmnd:
-                print()
                 help_menu(command=cmnd)
             elif cmnd == 'clear':
                 clear_screen()
-            elif cmnd[:10] == 'set -lhost':
+            elif cmnd[:3] == 'set':
                 if g.server is not None:
                     print()
-                    print("Error : Server already running")
-                    print("Restart the program to change 'lhost'")
+                    print(f"[{g.r}Error{g.e}] Server already running")
+                    print(f"[{g.bl}Fix{g.e}]   Restart the program to change 'lhost' or 'lport'")
                     continue
-                g.host = cmnd[11:]
-                print()
-                print(f'lhost set to --> {g.host}')
-            elif cmnd[:10] == 'set -lport':
-                if g.server is not None:
+                if '-i' in cmnd or '--lhost' in cmnd:
+                    g.host = cmnd.replace('set --lhost ', '').replace('set -i ', '')
                     print()
-                    print("Error : Server already running")
-                    print("Restart the program to change 'lport'")
-                    continue
-                g.port = int(cmnd[11:])
-                print()
-                print(f'lport set to --> {g.port}')
+                    print(f'lhost set to --> {g.host}')
+                elif '-p' in cmnd or '--lport' in cmnd:
+                    g.port = int(cmnd.replace('set --lport ', '').replace('set -p ', ''))
+                    print()
+                    print(f'lport set to --> {g.port}')
+                else:
+                    print()
+                    print(f"[{g.r}Error{g.e}] Invalid arguments...")
+                    print(f"[{g.bl}Fix{g.e}]   Enter set --help to view usage")
             elif cmnd[:8] == 'generate':
                 generate(data=cmnd)
             elif cmnd == 'listen':
                 if g.server is not None:
-                    print(f"\n[{g.r}Error{g.e}] Listen can only be started once")
+                    print(f"\n[{g.r}Error{g.e}] Listener can only be started once")
                     continue
                 if g.host == '192.168.29.17' and g.port == 3784:
                     print()
@@ -324,28 +321,38 @@ def shell():
                     listen_thread = threading.Thread(target=lambda: listen(again=True))
                 print()
                 print(msg)
-            elif cmnd == 'list -active':
-                list_active_connections()
-            elif cmnd == 'list -all':
-                list_all_connections()
+            elif cmnd[:4] == 'list':
+                if cmnd[5:] == '--active' or cmnd[5:] == '-c':
+                    list_active_connections()
+                elif cmnd[5:] == '--all' or cmnd[5:] == '-a':
+                    list_all_connections()
+                else:
+                    print()
+                    print(f"[{g.r}Error{g.e}] Invalid arguments...")
+                    print(f"[{g.bl}Fix{g.e}]   Enter list --help to view usage")
             elif cmnd[:6] == 'select':
-                Id = cmnd[7:]
-                select_client(Id=Id)
-            elif cmnd[:9] == 'close -id':
+                if cmnd[7:10] == '-id':
+                    Id = cmnd[11:]
+                    select_client(Id=Id)
+                else:
+                    print()
+                    print(f"[{g.r}Error{g.e}] Invalid arguments...")
+                    print(f"[{g.bl}Fix{g.e}]   Enter select --help to view usage")
+            elif cmnd[:5] == 'close':
                 if g.server is None:
                     print()
-                    print("No active connections to close")
-                    print("Enter 'listen' to start listening for connections")
+                    print(f"[{g.r}Error{g.e}] No active connections to close")
+                    print(f"[{g.bl}Fix{g.e}]   Enter 'listen' to start listening for connections")
                     continue
-                Id = cmnd[10:]
-                close_connection(Id)
-            elif cmnd == 'close -all':
-                if g.server is None:
+                if cmnd[6:] == '-id':
+                    Id = cmnd[10:]
+                    close_connection(Id)
+                elif cmnd[6:] == '-all':
+                    close_all_connections()
+                else:
                     print()
-                    print("No active connections to close")
-                    print("Enter 'listen' to start listening for connections")
-                    continue
-                close_all_connections()
+                    print(f"[{g.r}Error{g.e}] Invalid arguments...")
+                    print(f"[{g.bl}Fix{g.e}]    Enter close --help to view usage")
             elif cmnd.lower() in ['exit', 'quit', 'q', 'x']:
                 print()
                 print("Enter 'qs' to exit/quit shell")
@@ -381,7 +388,7 @@ def shell():
             elif cmnd[:len(cmnd)] == (len(cmnd)*' ') or cmnd == '':
                 pass
             else:
-                help_menu(command=cmnd)
+                help_menu(command='invalid')
         except KeyboardInterrupt:
             print()
             print("Enter 'qs' to exit/quit shell")

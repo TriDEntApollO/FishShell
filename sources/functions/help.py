@@ -104,16 +104,18 @@ def help_menu(command: str = 'help', parent: str = 'shell'):
 {g.y}Command             Description{g.e}
 {g.e}-------             -----------{g.e}
 {g.g}cwd{g.e}                 Get the current working directory.
-{g.g}ls{g.e}                  list a directory or all users in the target machine.
+{g.g}ls{g.e}                  list the cwd (with '-cwd' flag) or a specified directory 
+                    (with '-dir [path]' flag) in the target machine.
 {g.g}dwnld{g.e}               Download a file from the target machine.
 {g.g}upld{g.e}                Upload a file to the target machine.
 {g.g}chdir{g.e}               Change directory.
 {g.g}rmv{g.e}                 Delete a file from the target machine.
 {g.g}rmv_dir{g.e}             Delete a full/empty directory from the target machine.
 {g.g}opn_url{g.e}             Open a URL or link in the target machine.
-{g.g}strt_proc{g.e}           Start a process (file or executable) in the target machine.
+{g.g}strt_proc{g.e}           Start a process (file or executable) in the target machine.    
 {g.g}curr_usr{g.e}            Get current user's Username.
 {g.g}chk_admin{g.e}           Check if the current user is admin.
+{g.g}list_usrs{g.e}           List all the available users in the target machine.
 {g.g}curr_usr_details{g.e}    Get the current user's details.
 {g.g}usr_details{g.e}         Get a specified user's details.
 {g.g}take_ss{g.e}             Take and save a screenshot of the target machine.
@@ -122,9 +124,7 @@ def help_menu(command: str = 'help', parent: str = 'shell'):
 {g.g}restrt{g.e}              Restart the target machine.
 {g.g}shut{g.e}                Shutdown the target machine.
 {g.g}clear{g.e}               Clear the screen.
-{g.g}exit/quit{g.e}           Exit the current active session.
-
-[{g.g}Info{g.e}] Enter '[command] --help' or '[command] -h' to view full usage of the command.''')
+{g.g}exit/quit{g.e}           Exit the current active session.''')
 
         else:
             print()

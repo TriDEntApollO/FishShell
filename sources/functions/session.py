@@ -361,7 +361,7 @@ def send_command(client, Id):
             elif command == 'chk_admin':
                 client.send(command.encode())
                 check_admin(client=client)
-            elif command == 'ls -usrs':
+            elif command == 'list_usrs':
                 client.send(command.encode())
                 list_users(client=client)
             elif command == 'curr_usr_details':

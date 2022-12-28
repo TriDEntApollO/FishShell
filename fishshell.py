@@ -68,10 +68,19 @@ def start_server():
     except OSError:
         msg = f"[{g.r}Error{g.e}] Specified port already in use\n[{g.bl}Fix{g.e}]    Use 'set lport <PORT> to set a different port"
     except Exception as msg:
-        pass
+        msg = f"[{g.r}Error{g.e}] {msg}"
     g.server = None
     g.accept = False
     return False, msg
+
+
+def release_output_buffer():
+    global output_buffer
+    if output_buffer:
+        with lock:
+            print([lines for lines in output_buffer][0])
+            output_buffer.clear()
+            print('\nFishShell >>> ', end='')
 
 
 def accept_connections():
@@ -91,6 +100,8 @@ def accept_connections():
             if not g.till and g.accept:
                 print_msg = f"\n\n[{g.r}Error{g.e}] Error While accepting Connections\n[{g.r}Error Code{g.e}] {error}"
                 output_buffer.append(print_msg)
+        if isShell:
+            release_output_buffer()
     return
 
 
@@ -276,7 +287,8 @@ def quit_shell():
 
 
 def shell():
-    global cmnd, output_buffer, listen_thread
+    global cmnd, output_buffer, listen_thread, isShell
+    isShell = True
     while not g.till:
         try:
             print()
@@ -333,7 +345,9 @@ def shell():
             elif cmnd[:6] == 'select':
                 if cmnd[7:10] == '-id':
                     Id = cmnd[11:]
+                    isShell = False
                     select_client(Id=Id)
+                    isShell = True
                 else:
                     print()
                     print(f"[{g.r}Error{g.e}] Invalid arguments...")
@@ -411,9 +425,10 @@ def shell():
 
 
 def main():
-    global lock, output_buffer
+    global lock, output_buffer, isShell
     lock = threading.Lock()
     output_buffer = []
+    isShell = False
     g.initialize()
     g.all_conns = {}
     g.active_conns = {}

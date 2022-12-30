@@ -104,8 +104,8 @@ def help_menu(command: str = 'help', parent: str = 'shell'):
 {g.y}Command             Description{g.e}
 {g.e}-------             -----------{g.e}
 {g.g}cwd{g.e}                 Get the current working directory.
-{g.g}ls{g.e}                  list the cwd (with '-cwd' flag) or a specified directory 
-                    (with '-dir [path]' flag) in the target machine.
+{g.g}ls_cwd{g.e}              List the current working directory of the client. 
+{g.g}ls_dir{g.e}              List a specific directory in the target machine.
 {g.g}dwnld{g.e}               Download a file from the target machine.
 {g.g}upld{g.e}                Upload a file to the target machine.
 {g.g}chdir{g.e}               Change directory.

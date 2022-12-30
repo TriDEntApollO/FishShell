@@ -1,5 +1,6 @@
 import platform
 import subprocess
+from . import banner
 
 
 def clear_screen():
@@ -7,3 +8,4 @@ def clear_screen():
         subprocess.run('cls', shell=True)
     else:
         subprocess.run('clear', shell=True)
+    banner.banner()

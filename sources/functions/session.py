@@ -42,12 +42,13 @@ def recv_file(client, name=''):
                 print()
                 done = True
             elif data == msg:
-                print(str(msg))
-                done = True
+                print(msg.decode())
+                return False
             else:
                 file_bytes += data
         file.write(file_bytes)
         file.close()
+    return True
 
 
 def get_cwd(client):
@@ -98,10 +99,10 @@ def download(client):
     print()
     client.send(path_dir.encode())
     name = input("Enter name (directory) for file to be saved : ")
-    recv_file(client=client, name=name)
-    print()
-    print(f"{path_dir} saved as {name}")
-    print()
+    if recv_file(client=client, name=name):
+        print(f"\n\n{path_dir} saved as {name}\n\n")
+    else:
+        os.remove(name)
 
 
 def upload(client):

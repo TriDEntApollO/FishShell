@@ -55,9 +55,9 @@ def generate(data=''):
             print(f"Windows Payload generated and saved as '{path}'")
         elif plt == 'linux':
             print("\nGenerating Linux payload...\n")
-            with open(r'sources/templates/linux.bin', 'rb') as win:
-                data = load(win)
-                win.close()
+            with open(r'sources/templates/linux.bin', 'rb') as linx:
+                data = load(linx)
+                linx.close()
             with open(r'sources/templates/linux.py', 'w') as file:
                 file.write(data)
                 file.close()

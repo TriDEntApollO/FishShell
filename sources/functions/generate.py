@@ -1,8 +1,10 @@
 import sys
 import fileinput
+import traceback
 import subprocess
 from pickle import load
 from os import path as P
+from .var import globals as g
 
 
 def generate(data=''):
@@ -11,20 +13,20 @@ def generate(data=''):
         del data[0]
         for attr in data:
             if 'os ' in attr:
-                plt = (data[0].replace('os ', '')).replace(' ', '')
-            if 'lhost  ' in attr:
-                host = (data[1].replace('lhost ', '')).replace(' ', '')
-            if 'lport ' in attr:
-                port = int(data[2].replace('lport ', ''))
-                path = P.abspath(data[3].replace('outfile ', ''))
-            if 'outfile ' in attr:
+                plt = (attr.replace('os ', '')).replace(' ', '')
+            elif 'lhost ' in attr:
+                host = (attr.replace('lhost ', '')).replace(' ', '')
+            elif 'lport ' in attr:
+                port = int(attr.replace('lport ', '').replace(' ', ''))
+            elif 'outfile ' in attr:
+                path = P.abspath(attr.replace('outfile ', '')).replace(' ', '')
                 name = P.basename(path)
             else:
-                print("\nInvalid arguments!")
-                print("Enter 'generate -h' to view full usage")
+                print(f"\n[{g.r}Error{g.e}] Invalid arguments!")
+                print(f"[{g.bl}Fix{g.e}] Enter 'generate -h' to view full usage")
                 return
-    except:
-        print()
+    except Exception as err:
+        print(err)
         print(f"\n[{g.r}Error{g.e}] Invalid arguments...")
         print(f"[{g.bl}Fix{g.e}] Enter generate --help to view usage")
         return
@@ -71,5 +73,5 @@ def generate(data=''):
         else:
             print('\nInvalid platform!')
             print("Enter 'generate -h' to view full usage")
-    except Exception as e:
-        print(e)
+    except Exception:
+        print(traceback.format_exc())

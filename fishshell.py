@@ -455,4 +455,4 @@ if __name__ == '__main__':
     main()
     print()
     input("Press enter to continue...")
-    sys.exit()
+    sys.exit(0)

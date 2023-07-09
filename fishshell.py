@@ -7,12 +7,6 @@ import traceback
 import subprocess
 import socket as sock
 from datetime import datetime
-import sources.functions.var.globals as g
-from sources.functions.banner import banner
-from sources.functions.help import help_menu
-from sources.functions.generate import generate
-from sources.functions.session import send_command
-from sources.functions.ClearScreen import clear_screen
 
 
 try:
@@ -27,6 +21,14 @@ except Exception as err:
     print()
     print(err)
     print()
+
+
+import sources.functions.var.globals as g
+from sources.functions.banner import banner
+from sources.functions.help import help_menu
+from sources.functions.generate import generate
+from sources.functions.session import send_command
+from sources.functions.ClearScreen import clear_screen
 
 
 def create_threads():
@@ -66,7 +68,7 @@ def start_server():
         msg = f"{g.info} Listening on '{g.host}' at port '{g.port}'"
         return True, msg
     except OSError:
-        msg = f"{g.error} Specified port already in use\n{g.fix}    Use 'set lport <PORT> to set a different port"
+        msg = f"{g.error} Specified port already in use\n{g.fix}    Use 'set --lport <PORT> to set a different port"
     except Exception as msg:
         msg = f"{g.error} {msg}"
     g.server = None
@@ -262,7 +264,7 @@ def close_connection(Id):
         except sock.timeout:
             print()
             print("Session may have already died")
-        except exception as e:
+        except Exception as e:
             print()
             print(e)
     elif Id in g.all_conns:
@@ -439,7 +441,7 @@ def main():
     g.active_conns = {}
     g.till, g.accept = False, False
     g.server = None
-    g.host, g.port = '192.168.29.17', 3784
+    g.host, g.port = '127.0.0.1', 3784
     create_threads()
     try:
         shell_thread.start()

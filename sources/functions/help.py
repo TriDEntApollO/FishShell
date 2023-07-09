@@ -32,12 +32,14 @@ def help_menu(command: str = 'help', parent: str = 'shell'):
     {g.g}-os{g.e}           Specify target OS
     {g.g}-lhost{g.e}        Specify server listening host
     {g.g}-lport{g.e}        Specify Server listening port
+    {g.g}-persis{g.e}       Specify persistence mode
     {g.g}-outfile{g.e}      Specify output file name and directory
 
 {g.y}Arguments:{g.e}
     {g.g}win/linux{g.e}           For -os
     {g.g}server IP{g.e}           For -lhost
     {g.g}server port{g.e}         For -lport
+    {g.g}auto/manual{g.e}         For -persis
     {g.g}output file name{g.e}    For -outfile''')
 
         elif 'set' in command:

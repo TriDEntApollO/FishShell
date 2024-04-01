@@ -40,14 +40,13 @@ python3 fishshell.py
 
 **Note**: FishShell is prefered to be run as root or admin.
 
-**For more information on how to use FishShell and commands type help in the FishShell terminal**
+**For more information on how to use FishShell and about the commands, enter 'help' in the FishShell terminal**
 
 
 ## Important Notes
 
 - FishShell is still under developement.
 - There may be some critical bugs in the tool, if you face any please issue a report.
-- FishShell is prefered to be used on Linux, although Windows support is available it may have some critical bugs.
 
 ### Limitations
 

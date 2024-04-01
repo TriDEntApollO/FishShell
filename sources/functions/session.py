@@ -5,7 +5,7 @@ import traceback
 import socket as sock
 from .var import globals as g
 from .help import help_menu
-from sources.functions.ClearScreen import clear_screen
+from .clearScreen import clear_screen
 
 
 def handler(signum, frame):
@@ -455,7 +455,7 @@ def send_command(client, Id, ip):
                 client.send(b'exit')
                 return
             else:
-                help_menu(command='invalid', parent='session')
+                help_menu(command=command, parent='session')
                 print()
         except KeyboardInterrupt:
             break

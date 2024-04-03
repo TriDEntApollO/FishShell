@@ -3,6 +3,7 @@ import time
 import pickle
 import traceback
 import socket as sock
+from datetime import datetime
 from .var import globals as g
 from .help import help_menu
 from .clearScreen import clear_screen
@@ -220,7 +221,7 @@ def user_details(client):
 
 
 def take_screenshot(client):
-    name = f"screenshot-{input('Enter name to be saved (without extension) : ')}.png"
+    name = f"screenshot-{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}.png"
     while True:
         path = input("Enter path to be saved in : ")
         print()

@@ -24,21 +24,17 @@ except Exception as err:
     print()
 
 
-import sources.functions.getCommand as gc
 import sources.functions.var.globals as g
 from sources.functions.banner import banner
 from sources.functions.help import help_menu
 from sources.functions.generate import generate
 from sources.functions.session import send_command
 from sources.functions.clearScreen import clear_screen
-from sources.functions.web.webSession import web_session
 
 
 def create_threads():
     global shell_thread, listen_thread, web_thread
     shell_thread = threading.Thread(target=lambda: call_shell())
-    web_thread = threading.Thread(target=lambda: web_handler())
-    web_thread.daemon = True
     listen_thread = threading.Thread(target=lambda: listen())
     listen_thread.daemon = True
 
@@ -46,77 +42,6 @@ def create_threads():
 def call_shell():
     banner()
     shell()
-
-
-def write_info(key: str, status: str):
-    with open(r'WebInterface/TestProject/Templates/Data/info.bin', 'rb+') as info_file:
-        try:
-            info = pickle.load(info_file)
-        except EOFError:
-            info = {}
-        if key == 'all':
-            for k in info:
-                info[k] = None
-        else:
-            info[key] = status
-        info_file.seek(0)
-        pickle.dump(info, info_file)
-        info_file.close()
-
-
-def write_results(key: str, msg: str):
-    with open(r'WebInterface/TestProject/Templates/Data/result.bin', 'rb+') as result_file:
-        try:
-            results = pickle.load(result_file)
-        except EOFError:
-            results = {}
-        results[key] = msg
-        result_file.seek(0)
-        pickle.dump(results, result_file)
-        result_file.close()
-
-
-def write_clients(records: dict):
-    data = []
-    for Id in records:
-        rec = records[Id]
-        cli = {'id': Id, 'ip': rec[1][0], 'port': rec[1][1], 'os': rec[2], 'time': rec[3]}
-        data.append(cli)
-    with open(r'WebInterface/TestProject/Templates/Data/clients.bin', 'wb') as client_file:
-        client_file.seek(0)
-        pickle.dump(data, client_file)
-        client_file.close()
-
-
-def web_handler():
-    global listen_thread, output_buffer
-    while not g.till:
-        try:
-            commands = gc.get_command()
-            for pair in commands:
-                command = pair[0]
-                arguments = pair[1]
-                if command == 'startServer':
-                    g.host = arguments['host']
-                    g.port = arguments['port']
-                    state, msg = start_server()
-                    if state:
-                        g.accept = True
-                        listen_thread.start()
-                        listen_thread = threading.Thread(target=lambda: listen(again=True))
-                    if msg == f"{g.info} Listening on '{g.host}' at port '{g.port}'":
-                        write_results(command, 'SUCCESS')
-                        if g.host == '127.0.0.1' and g.port == 3784:
-                            msg = (f"\n\n'lhost' and 'lport' not set, continuing with default parameters\n{msg}")
-                        output_buffer.append(msg)
-                        release_output_buffer()
-                    else:
-                        msg = msg.replace(f'{g.error} ', '').split('\n')[0]
-                        write_results(command, msg)
-        except EOFError:
-            pass
-        except Exception:
-            print(traceback.format_exc())
 
 
 def listen(again: bool = False):
@@ -390,7 +315,6 @@ def shell():
     global cmnd, output_buffer, listen_thread, web_thread, isShell
     write_info('server', None)
     write_clients(records={})
-    web_thread.start()
     isShell = True
     while not g.till:
         try:
